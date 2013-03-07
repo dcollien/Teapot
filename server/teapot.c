@@ -42,14 +42,22 @@ int main(int argc, char **argv) {
    // don't exit on broken pipe (just fail with message)
    signal(SIGPIPE, brokenPipe);
 
-   // start the eventlib http server
-   event_init();
-   http_server = evhttp_start(http_addr, http_port);
+   // new event base for async stuff
+   struct event_base *base = event_base_new();
+
+   // create a new libevent http server
+   http_server = evhttp_new(base);
+   // bind to a particular address and port (can be specified via argvs)
+   evhttp_bind_socket(http_server, http_addr, http_port);
+   // set teapotRequestHandler as a callback for all requests (no others are caught specifically)
    evhttp_set_gencb(http_server, teapotRequestHandler, NULL);
 
    fprintf(stderr, "Teapot Server started on %s port %d\n", http_addr, http_port);
-   event_dispatch();
+   event_base_dispatch(base);
 
+   evhttp_free(http_server);
+   event_base_free(base);
+   
    fprintf(stderr, "Teapot Server Died\n");
 
    return EXIT_SUCCESS;
