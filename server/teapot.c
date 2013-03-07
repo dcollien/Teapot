@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
    // start the eventlib http server
    event_init();
    http_server = evhttp_start(http_addr, http_port);
-   evhttp_set_gencb(http_server, loggingRequestHandler, NULL);
+   evhttp_set_gencb(http_server, teapotRequestHandler, NULL);
 
    fprintf(stderr, "Teapot Server started on %s port %d\n", http_addr, http_port);
    event_dispatch();
